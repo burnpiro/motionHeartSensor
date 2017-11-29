@@ -122,7 +122,7 @@ void getMotionSensorData() {
   gy=-(Buf[10]<<8 | Buf[11]);
   gz=Buf[12]<<8 | Buf[13];
 
-  sensorData = String(String(normalizeSensorValue(ax, aResolution)) + ',' + String(normalizeSensorValue(ay, aResolution)) + ',' + String(normalizeSensorValue(az, aResolution)) + ',' + String(normalizeSensorValue(gx, gResolution)) + ',' + String(normalizeSensorValue(gy, gResolution)) + ',' + String(normalizeSensorValue(gz, gResolution)));
+  sensorData = String(String(normalizeSensorValue(ax, aResolution) + normalizeSensorValue(ay, aResolution) + normalizeSensorValue(az, aResolution)) + ',' + String(normalizeSensorValue(gx, gResolution) + normalizeSensorValue(gy, gResolution) + normalizeSensorValue(gz, gResolution)));
 }
 
 void getPulseSensorData() {
