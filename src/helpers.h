@@ -1,7 +1,7 @@
 #include <Wire.h>
 
 #define MPU9250_ADDRESS 0x68
-#define MAG_ADDRESS 0x0C
+#define MPU9250_ADDRESS2 0x0C
 
 #define GYRO_FULL_SCALE_250_DPS 0x00
 #define GYRO_FULL_SCALE_500_DPS 0x08
@@ -14,7 +14,7 @@
 #define ACC_FULL_SCALE_16_G 0x18
 
 uint8_t            socketNumber;
-String             sensorData = "";
+String             sensorData[2];
 int16_t ax,ay,az,gx,gy,gz;
 
 uint8_t aScale = ACC_FULL_SCALE_2_G, gScale = GYRO_FULL_SCALE_250_DPS; // set scale for gyro and acc (250DPS-200DPS and 2G-16G)
@@ -90,25 +90,22 @@ float normalizeSensorValue(float sensorValue, float resolution) {
   return (float)sensorValue*resolution;
 }
 
-void setupSensor() {
+void setupSensor(uint8_t ADDRESS) {
   // Configure gyroscope range
-  I2CwriteByte(MPU9250_ADDRESS,27,gScale);
+  I2CwriteByte(ADDRESS,27,gScale);
   setGyroResolution();
   // Configure accelerometers range
-  I2CwriteByte(MPU9250_ADDRESS,28,aScale);
+  I2CwriteByte(ADDRESS,28,aScale);
   setAccResolution();
   // Set by pass mode for the magnetometers
-  I2CwriteByte(MPU9250_ADDRESS,0x37,0x02);
-
-  // Request first magnetometer single measurement
-  I2CwriteByte(MAG_ADDRESS,0x0A,0x01);
+  I2CwriteByte(ADDRESS,0x37,0x02);
 }
 
-void getMotionSensorData() {
+String getMotionSensorData(uint8_t ADDRESS) {
 
   // Read accelerometer and gyroscope
   uint8_t Buf[14];
-  I2Cread(MPU9250_ADDRESS,0x3B,14,Buf);
+  I2Cread(ADDRESS,0x3B,14,Buf);
 
   // Create 16 bits values from 8 bits data
 
@@ -122,7 +119,7 @@ void getMotionSensorData() {
   gy=-(Buf[10]<<8 | Buf[11]);
   gz=Buf[12]<<8 | Buf[13];
 
-  sensorData = String(String(normalizeSensorValue(ax, aResolution) + normalizeSensorValue(ay, aResolution) + normalizeSensorValue(az, aResolution)) + ',' + String(normalizeSensorValue(gx, gResolution) + normalizeSensorValue(gy, gResolution) + normalizeSensorValue(gz, gResolution)));
+  return String(String(normalizeSensorValue(ax, aResolution)) + ',' + String(normalizeSensorValue(ay, aResolution)) + ',' + String(normalizeSensorValue(az, aResolution)) + ',' + String(normalizeSensorValue(gx, gResolution)) + ',' + String(normalizeSensorValue(gy, gResolution)) + ',' + String(normalizeSensorValue(gz, gResolution)));
 }
 
 void getPulseSensorData() {
